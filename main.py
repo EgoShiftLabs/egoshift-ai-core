@@ -1,42 +1,40 @@
-# EGO SHIFT™ AI CORE - LangChain Assistant (v0.1)
-# Filename: main.py
+from core.mission_engine import assign_mission
+from core.memory import store_memory, retrieve_memory
+from core.goals import add_goal, update_goal_status, get_goals
+from core.wallet import reward_tokens, spend_tokens, get_wallet
 
-from langchain.chat_models import ChatOpenAI
-from langchain.chains import ConversationChain
-from langchain.memory import ConversationBufferMemory
-from langchain.schema import SystemMessage
-
-# Initialize memory for tracking conversation
-memory = ConversationBufferMemory()
-
-# System message to shape AI behavior
-system_prompt = SystemMessage(
-    content=(
-        "You are the voice of the EGO SHIFT protocol — a smart, brutally honest, goal-oriented life coach. "
-        "Your job is to guide users toward self-mastery by helping them make better decisions in real time. "
-        "Be direct, tactical, motivational, and hold them accountable."
-    )
-)
-
-# Set up the core AI assistant using OpenAI (or other backend)
-llm = ChatOpenAI(temperature=0.3, model="gpt-4")
-
-chain = ConversationChain(
-    llm=llm,
-    memory=memory,
-    verbose=True
-)
-
-# Run basic interaction loop (to be replaced with app UI or API hook)
 def main():
-    print("Welcome to EGO SHIFT™: AI Mode Activated")
-    while True:
-        user_input = input("You: ")
-        if user_input.lower() in ["exit", "quit"]:
-            print("EGO SHIFT terminated.")
-            break
-        response = chain.run(input=user_input)
-        print(f"EGO SHIFT: {response}\n")
+    print("\nWelcome to EGO SHIFT™ — Your Second Consciousness\n")
+
+    # Assign today's mission
+    mission = assign_mission()
+    print(f"Today's Mission: {mission['description']} [Category: {mission['category']}]\n")
+
+    # Simulate mission completion
+    user_input = input("Did you complete this mission? (yes/no): ").strip().lower()
+    if user_input == "yes":
+        store_memory(f"User completed mission: {mission['description']}")
+        reward_tokens(10, f"Completed mission: {mission['description']}")
+        print("\n💰 +10 $SHIFT tokens awarded!")
+    else:
+        store_memory(f"User skipped mission: {mission['description']}")
+        print("\n⏳ No tokens earned. Try again tomorrow.")
+
+    # Show current wallet state
+    print("\n🔐 Your Wallet:")
+    wallet = get_wallet()
+    print(f"Balance: {wallet['balance']} $SHIFT")
+
+    # List past memory logs
+    print("\n🧠 Recent Memory:")
+    for note in retrieve_memory()[-3:]:
+        print(f"[{note['timestamp']}] {note['note']}")
+
+    # Show current goals
+    print("\n🎯 Active Goals:")
+    for g in get_goals():
+        if g['status'] == 'active':
+            print(f"- {g['title']} ({g['category']})")
 
 if __name__ == "__main__":
     main()
